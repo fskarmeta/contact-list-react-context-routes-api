@@ -1,28 +1,37 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../store/appContext";
+import PropTypes from "prop-types";
 
-export const AddContact = () => {
+export const Edit = props => {
 	const { store, actions } = useContext(Context);
+	const contactId = props.match.params.id;
 	const [contact, setContact] = useState({
 		full_name: "",
 		email: "",
-		agenda_slug: store.agenda,
+		agenda_slug: "",
 		address: "",
 		phone: ""
 	});
 
-	useEffect(() => {}, []);
-
-	function handleChange(e) {
+	const handleChange = e => {
 		const { name, value } = e.target;
 		setContact({ ...contact, [name]: value });
-	}
+	};
+
+	useEffect(() => {
+		if (store.contacts !== null) {
+			let contact = store.contacts.filter(contact => {
+				return contact.id === contactId;
+			});
+			setContact(contact[0]);
+		}
+	}, []);
 
 	return (
 		<div className="container">
 			<div>
-				<h1 className="text-center mt-5">Add a new contact</h1>
+				<h1 className="text-center mt-5">Edit Contact</h1>
 				<form>
 					<div className="form-group">
 						<label>Full Name</label>
@@ -72,14 +81,7 @@ export const AddContact = () => {
 						type="button"
 						className="btn btn-primary form-control"
 						onClick={() => {
-							actions.addContact(contact);
-							setContact({
-								full_name: "",
-								email: "",
-								agenda_slug: store.agenda,
-								address: "",
-								phone: ""
-							});
+							actions.editContact("/" + contactId, contact);
 						}}>
 						save
 					</button>
@@ -90,4 +92,9 @@ export const AddContact = () => {
 			</div>
 		</div>
 	);
+};
+
+Edit.propTypes = {
+	history: PropTypes.object,
+	match: PropTypes.object
 };
